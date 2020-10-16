@@ -104,12 +104,11 @@ export class Time {
 
   with(temporalTimeLike, options = undefined) {
     if (!ES.IsTemporalTime(this)) throw new TypeError('invalid receiver');
+
     if (ES.Type(temporalTimeLike) !== 'Object') {
       const str = ES.ToString(temporalTimeLike);
       temporalTimeLike = ES.RelevantTemporalObjectFromString(str);
     }
-    options = ES.NormalizeOptionsObject(options);
-    const overflow = ES.ToTemporalOverflow(options);
     const props = ES.ToPartialRecord(temporalTimeLike, [
       'hour',
       'microsecond',
@@ -121,6 +120,10 @@ export class Time {
     if (!props) {
       throw new TypeError('invalid time-like');
     }
+
+    options = ES.NormalizeOptionsObject(options);
+    const overflow = ES.ToTemporalOverflow(options);
+
     let {
       hour = GetSlot(this, HOUR),
       minute = GetSlot(this, MINUTE),
@@ -145,12 +148,31 @@ export class Time {
   }
   add(temporalDurationLike, options = undefined) {
     if (!ES.IsTemporalTime(this)) throw new TypeError('invalid receiver');
-    let { hour, minute, second, millisecond, microsecond, nanosecond } = this;
-    const duration = ES.ToLimitedTemporalDuration(temporalDurationLike);
-    options = ES.NormalizeOptionsObject(options);
-    const overflow = ES.ToTemporalOverflow(options);
-    const { years, months, weeks, days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds } = duration;
+
+    const {
+      years,
+      months,
+      weeks,
+      days,
+      hours,
+      minutes,
+      seconds,
+      milliseconds,
+      microseconds,
+      nanoseconds
+    } = ES.ToLimitedTemporalDuration(temporalDurationLike);
     ES.RejectDurationSign(years, months, weeks, days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds);
+
+    options = ES.NormalizeOptionsObject(options);
+    ES.ToTemporalOverflow(options);
+
+    let hour = GetSlot(this, HOUR);
+    let minute = GetSlot(this, MINUTE);
+    let second = GetSlot(this, SECOND);
+    let millisecond = GetSlot(this, MILLISECOND);
+    let microsecond = GetSlot(this, MICROSECOND);
+    let nanosecond = GetSlot(this, NANOSECOND);
+
     const sign = ES.DurationSign(
       years,
       months,
@@ -194,15 +216,6 @@ export class Time {
         nanoseconds
       ));
     }
-    ({ hour, minute, second, millisecond, microsecond, nanosecond } = ES.RegulateTime(
-      hour,
-      minute,
-      second,
-      millisecond,
-      microsecond,
-      nanosecond,
-      overflow
-    ));
     const Construct = ES.SpeciesConstructor(this, Time);
     const result = new Construct(hour, minute, second, millisecond, microsecond, nanosecond);
     if (!ES.IsTemporalTime(result)) throw new TypeError('invalid result');
@@ -210,12 +223,31 @@ export class Time {
   }
   subtract(temporalDurationLike, options = undefined) {
     if (!ES.IsTemporalTime(this)) throw new TypeError('invalid receiver');
-    let { hour, minute, second, millisecond, microsecond, nanosecond } = this;
-    const duration = ES.ToLimitedTemporalDuration(temporalDurationLike);
-    options = ES.NormalizeOptionsObject(options);
-    const overflow = ES.ToTemporalOverflow(options);
-    const { years, months, weeks, days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds } = duration;
+
+    const {
+      years,
+      months,
+      weeks,
+      days,
+      hours,
+      minutes,
+      seconds,
+      milliseconds,
+      microseconds,
+      nanoseconds
+    } = ES.ToLimitedTemporalDuration(temporalDurationLike);
     ES.RejectDurationSign(years, months, weeks, days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds);
+
+    options = ES.NormalizeOptionsObject(options);
+    ES.ToTemporalOverflow(options);
+
+    let hour = GetSlot(this, HOUR);
+    let minute = GetSlot(this, MINUTE);
+    let second = GetSlot(this, SECOND);
+    let millisecond = GetSlot(this, MILLISECOND);
+    let microsecond = GetSlot(this, MICROSECOND);
+    let nanosecond = GetSlot(this, NANOSECOND);
+
     const sign = ES.DurationSign(
       years,
       months,
@@ -259,15 +291,7 @@ export class Time {
         nanoseconds
       ));
     }
-    ({ hour, minute, second, millisecond, microsecond, nanosecond } = ES.RegulateTime(
-      hour,
-      minute,
-      second,
-      millisecond,
-      microsecond,
-      nanosecond,
-      overflow
-    ));
+
     const Construct = ES.SpeciesConstructor(this, Time);
     const result = new Construct(hour, minute, second, millisecond, microsecond, nanosecond);
     if (!ES.IsTemporalTime(result)) throw new TypeError('invalid result');
@@ -336,6 +360,7 @@ export class Time {
   since(other, options = undefined) {
     if (!ES.IsTemporalTime(this)) throw new TypeError('invalid receiver');
     other = ES.ToTemporalTime(other, Time);
+
     options = ES.NormalizeOptionsObject(options);
     const largestUnit = ES.ToLargestTemporalUnit(options, 'hours', ['years', 'months', 'weeks', 'days']);
     const smallestUnit = ES.ToSmallestTemporalDurationUnit(options, 'nanoseconds');
@@ -485,9 +510,8 @@ export class Time {
     return new DateTime(year, month, day, hour, minute, second, millisecond, microsecond, nanosecond, calendar);
   }
   getFields() {
-    const fields = ES.ToTemporalTimeRecord(this);
-    if (!fields) throw new TypeError('invalid receiver');
-    return fields;
+    if (!ES.IsTemporalTime(this)) throw new TypeError('invalid receiver');
+    return ES.ToTemporalTimeRecord(this);
   }
 
   static from(item, options = undefined) {
