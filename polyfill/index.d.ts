@@ -422,8 +422,6 @@ export namespace Temporal {
         | /** @deprecated */ 'nanoseconds'
       >
     ): Temporal.Instant;
-    toDateTime(tzLike: TimeZoneProtocol | string, calendar: CalendarProtocol | string): Temporal.DateTime;
-    toDateTimeISO(tzLike: TimeZoneProtocol | string): Temporal.DateTime;
     toLocaleString(locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
     toJSON(): string;
     toString(tzLike?: TimeZoneProtocol | string, options?: ToStringOptions): string;
@@ -764,7 +762,6 @@ export namespace Temporal {
         | /** @deprecated */ 'nanoseconds'
       >
     ): Temporal.DateTime;
-    toInstant(tzLike: TimeZoneProtocol | string, options?: ToInstantOptions): Temporal.Instant;
     toDate(): Temporal.Date;
     toYearMonth(): Temporal.YearMonth;
     toMonthDay(): Temporal.MonthDay;
